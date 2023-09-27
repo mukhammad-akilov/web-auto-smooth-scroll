@@ -14,14 +14,10 @@ const transformContainer = document.querySelector<HTMLDivElement>(
 const transformContainerContent = document.querySelector<HTMLDivElement>(
   ".scroll-box-container.scroll-transform .content-container"
 )!;
-const transformContainerFake = document.querySelector<HTMLDivElement>(
-  ".scroll-box-container.scroll-transform-fake"
-)!;
 
 const framesPerSecond = 8;
 
 let translateY = 0;
-let transformContainerFakeScrollTop = 0;
 
 // Auto scroll container 1
 setInterval(() => {
@@ -42,54 +38,31 @@ const scrollOnRequestAnimation = () => {
 
 window.requestAnimationFrame(scrollOnRequestAnimation);
 
+// Container 3 custom scroll
+const osInstance = OverlayScrollbars(transformContainer, {});
+
 // Auto scroll container 3
 setInterval(() => {
+  const { overflowAmount } = osInstance.state();
+  const { scrollbarVertical } = osInstance.elements();
+  const { handle, track } = scrollbarVertical;
+  const scrollPosition = translateY * -1;
+  const scrollPercent = Math.max(
+    0,
+    Math.min(1, scrollPosition / overflowAmount.y)
+  );
+  const lengthRatio = Math.max(
+    0,
+    Math.min(
+      1,
+      handle.getBoundingClientRect().height /
+        track.getBoundingClientRect().height
+    )
+  );
+
+  handle.style.transform = `translateY(${
+    (1 / lengthRatio) * (1 - lengthRatio) * scrollPercent * 100
+  }%)`;
   transformContainerContent.style.transform = `translateY(${translateY}px)`;
-  translateY -= 1;
+  translateY -= 100;
 }, 150);
-
-// Container 3 custom scroll
-OverlayScrollbars(transformContainer, {});
-
-// Fake scroll for contianer 3
-const fakeTransformContainerScroll = OverlayScrollbars(
-  transformContainerFake,
-  {}
-);
-
-const { viewport: fakeViewport } = fakeTransformContainerScroll?.elements();
-
-setInterval(() => {
-  fakeViewport.scrollTo({ top: transformContainerFakeScrollTop++ });
-}, 20);
-
-// Mutation Observer
-const scrollBarObserver = new MutationObserver(function (
-  mutationRecords
-  // observer
-) {
-  mutationRecords.forEach(function (mutationRecord) {
-    if (mutationRecord.attributeName === "style") {
-      const targetElem = mutationRecord.target as HTMLDivElement;
-      console.log(targetElem.getAttribute("style"));
-      transformContainer.querySelector<HTMLDivElement>(
-        ".os-scrollbar-vertical .os-scrollbar-handle"
-      )!.style.transform = targetElem
-        .getAttribute("style")!
-        .split(" ")[3]
-        .slice(0, -1);
-    }
-  });
-});
-
-const observerConfig = {
-  attributes: true,
-  attributeFilter: ["style"],
-};
-
-const targetNode = transformContainerFake.querySelector<HTMLDivElement>(
-  ".os-scrollbar-vertical .os-scrollbar-handle"
-)!;
-
-console.log(targetNode);
-scrollBarObserver.observe(targetNode, observerConfig);
