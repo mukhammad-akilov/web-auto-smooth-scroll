@@ -1,17 +1,28 @@
-:root {
-  background-color: #242424;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    background-color: #ffffff;
-  }
-}
-
 body {
   padding: 15px;
 }
 
+.app {
+  width: 945px;
+  margin: 0 auto;
+}
+
+.titles-container {
+  display: grid;
+  gap: 15px;
+  grid-template-columns: 300px 300px 300px;
+  margin-bottom: 1rem;
+
+  & h2 {
+    text-align: center;
+    font-size: 1.2rem;
+    margin: 0;
+
+    @media (prefers-color-scheme: dark) {
+      color: #ffffff;
+    }
+  }
+}
 .scroll-boxes-container {
   display: flex;
   gap: 15px;
@@ -37,16 +48,9 @@ body {
 
       .content-container {
         transform: translateY(0);
-        transition: all 0.5s;
+        transition: transform 0.25s linear;
         will-change: transform;
       }
-    }
-
-    &.scroll-transform-fake {
-      border: 3px solid purple;
-      position: fixed;
-      bottom: 0;
-      right: 10px;
     }
   }
 }

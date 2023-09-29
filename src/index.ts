@@ -1,6 +1,7 @@
-import "overlayscrollbars/overlayscrollbars.css";
-import "./style.css";
 import { OverlayScrollbars } from "overlayscrollbars";
+import "./style.css";
+import "overlayscrollbars/overlayscrollbars.css";
+import "./reboot.css";
 
 const intervalContainer = document.querySelector<HTMLDivElement>(
   ".scroll-box-container.scroll-interval"
@@ -46,11 +47,15 @@ setInterval(() => {
   const { overflowAmount } = osInstance.state();
   const { scrollbarVertical } = osInstance.elements();
   const { handle, track } = scrollbarVertical;
-  const scrollPosition = translateY * -1;
+  const scrollPosition = translateY;
   const scrollPercent = Math.max(
     0,
     Math.min(1, scrollPosition / overflowAmount.y)
   );
+  handle.getAnimations().forEach((animation) => {
+    animation.cancel();
+  });
+
   const lengthRatio = Math.max(
     0,
     Math.min(
@@ -60,9 +65,10 @@ setInterval(() => {
     )
   );
 
+  handle.style.transition = "transform 0.25s linear";
   handle.style.transform = `translateY(${
     (1 / lengthRatio) * (1 - lengthRatio) * scrollPercent * 100
   }%)`;
-  transformContainerContent.style.transform = `translateY(${translateY}px)`;
-  translateY -= 100;
-}, 150);
+  transformContainerContent.style.transform = `translateY(${-translateY}px)`;
+  translateY = Math.max(0, Math.min(overflowAmount.y, translateY + 1));
+}, 200);
